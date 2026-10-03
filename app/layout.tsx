@@ -9,7 +9,7 @@ const siteUrl = process.env.SITE_URL ||
 
 const siteTitle = "KRK Alert — Zgłoś. Zlokalizuj. Pomóż miastu reagować.";
 const siteDescription =
-  "Zgłaszaj problemy w Krakowie: dziury w drogach, awarie oświetlenia i inne usterki. Dodaj zdjęcie, wskaż miejsce na mapie i pomóż miastu reagować.";
+  "Zgłaszaj usterki w Krakowie. Dodaj zdjęcie, wskaż miejsce na mapie i pomóż miastu reagować.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
