@@ -298,7 +298,7 @@ export default function KrkAlertApp() {
 
       <section id="report" className="bg-white py-20 text-slate-900">
         <div className="site-wrap grid gap-10 lg:grid-cols-[.74fr_1.26fr]">
-          <div className="lg:sticky lg:top-28 lg:self-start">
+          <div className="lg:self-start">
             <span className="section-label">01 · {lang === "pl" ? "Zgłoszenie" : "Report"}</span>
             <h2 className="section-title">{t.reportHeading}</h2>
             <p className="section-lead">{t.reportLead}</p>
@@ -341,6 +341,13 @@ export default function KrkAlertApp() {
           </div>
 
           <form onSubmit={submit} className="report-card">
+            <div className="report-section-heading">
+              <span className="report-step">01</span>
+              <div>
+                <h3>{lang === "pl" ? "Opisz problem" : "Describe the issue"}</h3>
+                <p>{lang === "pl" ? "Wybierz rodzaj problemu i dodaj szczegóły." : "Choose the issue type and add details."}</p>
+              </div>
+            </div>
             <div className="grid gap-5 md:grid-cols-2">
               <label className="field">
                 <span>{t.category}</span>
@@ -426,13 +433,12 @@ export default function KrkAlertApp() {
                   <p className="font-bold">{lang === "pl" ? "Sugerowana kategoria" : "Suggested category"}</p>
                   <p className="mt-2 text-slate-600">
                     {photoLoading ? (lang === "pl" ? "Optymalizacja zdjęcia…" : "Optimizing photo…") :
-                    analysisStatus === "analyzing" ? (lang === "pl" ? "Hugging Face analizuje zdjęcie…" : "Hugging Face is analyzing the photo…") :
+                    analysisStatus === "analyzing" ? (lang === "pl" ? "Analiza w toku…" : "Analysis in progress…") :
                     analysisStatus === "error" ? (["TIMEOUT", "HF_TIMEOUT"].includes(analysisDetail) ? (lang === "pl" ? "Hugging Face nie odpowiedział na czas. Ponów próbę lub wybierz kategorię ręcznie." : "Hugging Face timed out. Retry or choose a category manually.") : lang === "pl" ? (analysisDetail === "HF_CREDITS_REQUIRED" ? "Brak kredytów Hugging Face. Wybierz kategorię ręcznie." : analysisDetail === "HF_AUTH_ERROR" || analysisDetail === "HF_TOKEN_MISSING" ? "Brak dostępu do Hugging Face. Sprawdź token i uprawnienie Inference Providers na serwerze." : analysisDetail === "HF_RATE_LIMIT" ? "Limit zapytań Hugging Face. Spróbuj później lub wybierz kategorię ręcznie." : "Analiza Hugging Face niedostępna. Wybierz kategorię ręcznie lub ponów próbę.") : (analysisDetail === "HF_CREDITS_REQUIRED" ? "Hugging Face credits exhausted. Choose a category manually." : analysisDetail === "HF_AUTH_ERROR" || analysisDetail === "HF_TOKEN_MISSING" ? "Hugging Face access unavailable. Check the server token and Inference Providers permission." : analysisDetail === "HF_RATE_LIMIT" ? "Hugging Face rate limit reached. Retry later or choose a category manually." : "Hugging Face analysis unavailable. Choose a category manually or retry.")) :
                     suggestion ? `${categories.find(item => item.key === suggestion.category)?.[lang]} → ${categories.find(item => item.key === suggestion.category)?.items[suggestion.subcategoryIndex]?.[lang]}` :
                     (lang === "pl" ? "Brak jednoznacznej propozycji. Wybierz kategorię ręcznie." : "No clear suggestion. Choose a category manually.")}
                   </p>
-                  <p className="mt-2 text-xs text-slate-500">{lang === "pl" ? "Zmniejszone zdjęcie jest wysyłane przez serwer do Hugging Face i dostawcy modelu. Formularz zmieni się dopiero po kliknięciu „Zastosuj propozycję”." : "The resized photo is sent through the server to Hugging Face and its model provider. The form changes only after you click “Apply suggestion”."}</p>
-                  {suggestion && <button type="button" className="primary-button mt-3" onClick={() => {setCategory(suggestion.category);setSubcategoryIndex(suggestion.subcategoryIndex);setSuggestion(null);setAnalysisStatus("idle");}}>{lang === "pl" ? "Zastosuj propozycję" : "Apply suggestion"}</button>}
+                  {suggestion && <button type="button" className="primary-button mt-3" onClick={() => {setCategory(suggestion.category);setSubcategoryIndex(suggestion.subcategoryIndex);setSuggestion(null);setAnalysisStatus("idle");}}>{lang === "pl" ? "Zastosuj" : "Apply"}</button>}
                   {analysisStatus === "error" && <button type="button" className="mt-3 underline" onClick={() => setAnalysisRevision(value => value + 1)}>{lang === "pl" ? "Spróbuj ponownie" : "Retry analysis"}</button>}
                   {analysisStatus === "error" && analysisDetail && <details className="mt-2 text-xs text-slate-500"><summary className="cursor-pointer">{lang === "pl" ? "Szczegóły błędu" : "Error details"}</summary><p className="mt-2 break-words">{analysisDetail}</p></details>}
                 </div>
@@ -440,7 +446,13 @@ export default function KrkAlertApp() {
             </div>
 
             <div className="mt-6">
-              <span className="field-label">{t.location}</span>
+              <div className="report-section-heading report-location-heading">
+                <span className="report-step">02</span>
+                <div>
+                  <h3>{t.location}</h3>
+                  <p>{lang === "pl" ? "Wskaż dokładne miejsce na mapie." : "Mark the exact spot on the map."}</p>
+                </div>
+              </div>
               <ReportMap value={position} onChange={setPosition} label={t.useGps} lang={lang} />
             </div>
 
@@ -448,6 +460,13 @@ export default function KrkAlertApp() {
               <div className="text-xs text-slate-500">
                 {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
               </div>
+            </div>
+
+            <div className="report-actions">
+              <p><ShieldCheck size={16} aria-hidden="true" />{lang === "pl" ? "Bez konta. Zapis tylko w tej przeglądarce." : "No account. Saved only in this browser."}</p>
+              <button type="submit" className="primary-button" disabled={photoLoading}>
+                {t.submit}<ArrowRight size={18} aria-hidden="true" />
+              </button>
             </div>
 
             {error && <p role="alert" className="mt-4 text-sm text-red-700">{error === "storage-read" ? (lang === "pl" ? "Nie można odczytać lokalnych danych." : "Cannot read local data.") : error}</p>}
