@@ -102,13 +102,28 @@ Wersja demo nie wysyła zgłoszeń do urzędu. Dane formularza są przechowywane
 
 Grafika: `public/og/krk-alert-og.png`
 
-Po wdrożeniu zmień w `app/layout.tsx`:
+Adres Open Graph jest ustalany automatycznie ze zmiennych Vercel.
+Dla własnej domeny ustaw `SITE_URL` na pełny adres HTTPS.
 
-```ts
-metadataBase: new URL("https://krk-alert.vercel.app")
-```
+## Wdrożenie na Vercel
 
-na właściwy adres Vercel / domenę.
+1. Zaimportuj repozytorium w Vercel i wybierz katalog główny projektu.
+2. Framework: **Next.js**. Instalacja: `npm ci`. Build: `npm run build`.
+   Output Directory pozostaw domyślny (`.next`).
+3. W **Settings → Environment Variables** dodaj `HF_TOKEN` dla Production
+   i Preview, jeśli analiza zdjęć ma działać również na podglądach.
+   Token musi mieć uprawnienie „Make calls to Inference Providers”.
+4. Opcjonalnie dodaj `HF_VISION_MODEL` i `SITE_URL` (np. `https://twoja-domena.pl`).
+   Nie dodawaj prefiksu `NEXT_PUBLIC_` do tokenu. Wzór ustawień: `.env.example`.
+5. Uruchom deployment. Po zmianie zmiennych środowiskowych wykonaj Redeploy.
+
+Endpoint analizy zdjęć korzysta z Node.js, `sharp` i limitu czasu 120 sekund.
+Włącz Fluid Compute w ustawieniach projektu. Nie konfiguruj eksportu statycznego:
+aplikacja wymaga funkcji serwerowej `/api/analyze-photo`.
+Na Vercel katalog builda zawsze ma nazwę `.next`; `KRK_BUILD_DIR` służy wyłącznie
+do lokalnej weryfikacji. Zgłoszenia pozostają w localStorage danej przeglądarki.
+
+Przed wdrożeniem sprawdź `npm run lint`, `npm run test:photo` i `npm run build`.
 
 
 ## Korelacja z challenge SmartCity

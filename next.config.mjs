@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  distDir: process.env.KRK_BUILD_DIR || ".next",
+  distDir: process.env.VERCEL ? ".next" : process.env.KRK_BUILD_DIR || ".next",
   serverExternalPackages: ["sharp"],
 };
 

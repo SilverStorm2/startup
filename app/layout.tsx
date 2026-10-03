@@ -2,8 +2,12 @@ import type { Metadata } from "next";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
 
+const siteUrl = process.env.SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined) ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://krk-alert.vercel.app"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "KRK Alert — zgłoś problem w Krakowie",
     template: "%s | KRK Alert"
