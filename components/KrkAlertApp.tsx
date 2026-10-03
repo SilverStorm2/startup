@@ -64,18 +64,20 @@ const showcase = [
 
 const faqPl = [
   ["Co mogę zgłosić?", "Problemy z infrastrukturą, czystością i zielenią, bezpieczeństwem, transportem, wodą i kanalizacją, środowiskiem, dostępnością oraz obiektami rekreacyjnymi."],
-  ["Czy zgłoszenie jest anonimowe?", "Tak. Ten prototyp nie wymaga konta ani danych osobowych."],
-  ["Kiedy dzwonić pod 112?", "Gdy istnieje bezpośrednie zagrożenie życia, zdrowia lub bezpieczeństwa."],
-  ["Jak działa lokalizacja?", "Możesz użyć GPS albo ręcznie kliknąć mapę i przesunąć pinezkę."],
-  ["Gdzie są przechowywane moje zgłoszenia?", "Wyłącznie lokalnie, w pamięci tej przeglądarki."]
+  ["Co dzieje się ze zgłoszeniem po wysłaniu?", "KRK Alert porządkuje zgłoszenie, określa jego kategorię, rodzaj problemu, priorytet i lokalizację oraz przygotowuje je do przekazania właściwej jednostce miejskiej."],
+  ["Czy muszę wiedzieć, do którego urzędu wysłać zgłoszenie?", "Nie. KRK Alert ma pomóc określić właściwą jednostkę na podstawie rodzaju i lokalizacji problemu."],
+  ["Czy zgłoszenie jest anonimowe?", "W wersji demonstracyjnej aplikacja nie wymaga konta ani podawania danych osobowych."],
+  ["Kiedy dzwonić pod 112?", "W przypadku bezpośredniego zagrożenia życia, zdrowia lub bezpieczeństwa należy skontaktować się z numerem alarmowym 112. KRK Alert nie służy do obsługi sytuacji alarmowych."],
+  ["Jak działa lokalizacja?", "Możesz użyć lokalizacji urządzenia albo wskazać miejsce ręcznie na mapie."]
 ];
 
 const faqEn = [
   ["What can I report?", "Infrastructure, cleanliness and greenery, safety, transport, water and drainage, environment, accessibility and recreation facility issues."],
-  ["Is the report anonymous?", "Yes. This prototype does not require an account or personal details."],
-  ["When should I call 112?", "When there is an immediate threat to life, health or safety."],
-  ["How does location work?", "Use GPS or click the map and drag the marker manually."],
-  ["Where are my reports stored?", "Only locally, in this browser's localStorage."]
+  ["What happens to a report after submission?", "KRK Alert organizes the report, identifies its category, issue type, priority and location, and prepares it to be forwarded to the appropriate municipal department."],
+  ["Do I need to know which office to send my report to?", "No. KRK Alert is designed to help identify the appropriate department based on the type and location of the issue."],
+  ["Is the report anonymous?", "The demo version does not require an account or personal details."],
+  ["When should I call 112?", "In the event of an immediate threat to life, health or safety, contact the emergency number 112. KRK Alert is not intended to handle emergencies."],
+  ["How does location work?", "You can use your device's location or select a place manually on the map."]
 ];
 
 export default function KrkAlertApp() {
