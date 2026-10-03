@@ -298,11 +298,6 @@ export default function KrkAlertApp() {
                   <span>{lang === "pl" ? "Krowodrza · 2 min temu" : "Krowodrza · 2 min ago"}</span>
                 </div>
               </div>
-              <div className="mt-5 grid grid-cols-3 gap-3">
-                <div className="metric"><b>03</b><span>{lang === "pl" ? "nowe" : "new"}</span></div>
-                <div className="metric"><b>11</b><span>{lang === "pl" ? "w toku" : "in progress"}</span></div>
-                <div className="metric"><b>28</b><span>{lang === "pl" ? "rozwiązane" : "resolved"}</span></div>
-              </div>
             </div>
           </div>
         </div>
