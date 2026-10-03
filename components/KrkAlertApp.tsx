@@ -24,13 +24,6 @@ const priorityLabels = {
   HIGH: { pl: "Wysoki", en: "High" },
   CRITICAL: { pl: "Krytyczny", en: "Critical" }
 };
-const impactLabels: Record<string, Record<Lang, string>> = {
-  Mobility: { pl: "Mobilność", en: "Mobility" },
-  Safety: { pl: "Bezpieczeństwo", en: "Safety" },
-  "Public space": { pl: "Przestrzeń publiczna", en: "Public space" },
-  "Quality of life": { pl: "Jakość życia", en: "Quality of life" },
-  "Crisis response": { pl: "Reagowanie kryzysowe", en: "Crisis response" }
-};
 const smartImpacts = {
   infrastructure: ["Mobility", "Safety"],
   "clean-green": ["Public space", "Quality of life"],
@@ -376,14 +369,6 @@ export default function KrkAlertApp() {
               <div>
                 <span className="smart-label">{lang === "pl" ? "Priorytet" : "Priority"}</span>
                 <strong className={`priority priority-${priority.toLowerCase()}`}>{priorityLabels[priority][lang]}</strong>
-              </div>
-              <div>
-                <span className="smart-label">{lang === "pl" ? "Wpływ na miasto" : "City impact"}</span>
-                <div className="impact-list">
-                  {smartImpacts[category as keyof typeof smartImpacts].map((impact) => (
-                    <span key={impact}>{impactLabels[impact][lang]}</span>
-                  ))}
-                </div>
               </div>
             </div>
 
