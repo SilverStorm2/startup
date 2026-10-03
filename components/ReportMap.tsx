@@ -8,14 +8,18 @@ type Props = {
   value: { lat: number; lng: number };
   onChange: (value: { lat: number; lng: number }) => void;
   label: string;
+  lang: "pl" | "en";
 };
 
 const KRAKOW = { lat: 50.0647, lng: 19.945 };
 
-export default function ReportMap({ value, onChange, label }: Props) {
+export default function ReportMap({ value, onChange, label, lang }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
+  const initialValue = useRef(value);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
   const [gpsState, setGpsState] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
   useEffect(() => {
@@ -23,7 +27,7 @@ export default function ReportMap({ value, onChange, label }: Props) {
 
     const map = new maplibregl.Map({
       container: containerRef.current,
-      center: [value.lng || KRAKOW.lng, value.lat || KRAKOW.lat],
+      center: [initialValue.current.lng ?? KRAKOW.lng, initialValue.current.lat ?? KRAKOW.lat],
       zoom: 13,
       style: {
         version: 8,
@@ -40,17 +44,17 @@ export default function ReportMap({ value, onChange, label }: Props) {
     });
 
     const marker = new maplibregl.Marker({ color: "#ff6b35", draggable: true })
-      .setLngLat([value.lng || KRAKOW.lng, value.lat || KRAKOW.lat])
+      .setLngLat([initialValue.current.lng ?? KRAKOW.lng, initialValue.current.lat ?? KRAKOW.lat])
       .addTo(map);
 
     marker.on("dragend", () => {
       const point = marker.getLngLat();
-      onChange({ lat: point.lat, lng: point.lng });
+      onChangeRef.current({ lat: point.lat, lng: point.lng });
     });
 
     map.on("click", (event) => {
       marker.setLngLat(event.lngLat);
-      onChange({ lat: event.lngLat.lat, lng: event.lngLat.lng });
+      onChangeRef.current({ lat: event.lngLat.lat, lng: event.lngLat.lng });
     });
 
     mapRef.current = map;
@@ -61,7 +65,11 @@ export default function ReportMap({ value, onChange, label }: Props) {
       mapRef.current = null;
       markerRef.current = null;
     };
-  }, [onChange, value.lat, value.lng]);
+  }, []);
+
+  useEffect(() => {
+    markerRef.current?.setLngLat([value.lng, value.lat]);
+  }, [value.lat, value.lng]);
 
   const useGps = () => {
     if (!navigator.geolocation) {
@@ -89,15 +97,15 @@ export default function ReportMap({ value, onChange, label }: Props) {
     <div className="space-y-3">
       <div className="map-shell">
         <div ref={containerRef} className="h-[310px] w-full" />
-        <button type="button" onClick={useGps} className="gps-button">
+        <button type="button" onClick={useGps} className="gps-button" disabled={gpsState === "loading"}>
           <LocateFixed size={17} />
           {gpsState === "loading" ? "GPS..." : label}
         </button>
       </div>
       <p className="text-xs text-slate-500">
         {gpsState === "error"
-          ? "Nie udało się pobrać GPS. Kliknij mapę lub przeciągnij pinezkę."
-          : "Kliknij mapę lub przeciągnij pinezkę, aby poprawić lokalizację."}
+          ? (lang === "pl" ? "Nie udało się pobrać GPS. Kliknij mapę lub przeciągnij pinezkę." : "GPS unavailable. Click the map or drag the marker.")
+          : (lang === "pl" ? "Kliknij mapę lub przeciągnij pinezkę, aby poprawić lokalizację." : "Click the map or drag the marker to adjust the location.")}
       </p>
     </div>
   );

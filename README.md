@@ -22,11 +22,26 @@ npm run dev
 
 Otwórz `http://localhost:3000`.
 
+## Weryfikacja i zapis
+
+`npm run lint` sprawdza typy TypeScript, a `npm run build` tworzy wersję produkcyjną.
+Jeśli działający serwer blokuje katalog `.next`, w PowerShell użyj:
+
+```powershell
+$env:KRK_BUILD_DIR = '.next-check'
+npm run build
+```
+
+Zgłoszenia zapisują opis, współrzędne, datę, status, priorytet, wpływ na miasto
+i opcjonalne zdjęcie JPG/PNG/WebP (do 2 MB). Zdjęcia pozostają w localStorage.
+W razie braku miejsca formularz zachowuje dane i wyświetla błąd zapisu.
+Priorytet jest sugestią opartą na prostych regułach tekstowych.
+
 ## Funkcje
 
 - PL/EN
 - zgłoszenie problemu
-- 3 główne kategorie + podkategorie
+- 8 kategorii i 54 rodzaje problemów, w języku polskim i angielskim
 - zdjęcie z podglądem
 - MapLibre + GPS + draggable marker / kliknięcie mapy
 - status zgłoszenia

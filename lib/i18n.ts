@@ -4,7 +4,7 @@ export const copy = {
   pl: {
     navReport: "Zgłoś problem",
     navHow: "Jak działa",
-    navFaq: "FAQ",
+    navFaq: "Pytania i odpowiedzi",
     eyebrow: "Miejski system zgłoszeń · Kraków",
     heroTitleA: "Widzisz problem?",
     heroTitleB: "Zgłoś go w 60 sekund.",
@@ -13,7 +13,7 @@ export const copy = {
     reportNow: "Zgłoś problem",
     emergency: "Nagłe zagrożenie? Zadzwoń 112",
     reportHeading: "Nowe zgłoszenie",
-    reportLead: "Zdjęcie, kategoria i lokalizacja — bez konta i bez bazy danych.",
+    reportLead: "Opisz problem, wybierz kategorię i wskaż miejsce. Możesz też dodać zdjęcie.",
     category: "Kategoria",
     subcategory: "Rodzaj problemu",
     desc: "Krótki opis",
@@ -23,11 +23,11 @@ export const copy = {
     submit: "Zapisz zgłoszenie lokalnie",
     status: "Status zgłoszenia",
     recent: "Przykładowe zgłoszenia",
-    recentLead: "Prosty carousel pokazujący rodzaj spraw i ich stan.",
+    recentLead: "Zobacz przykładowe problemy miejskie i etapy ich obsługi.",
     howTitle: "Jak to działa?",
     faqTitle: "Najczęstsze pytania",
     privacyNote:
-      "Wersja demo zapisuje zgłoszenia wyłącznie w localStorage Twojej przeglądarki.",
+      "Wersja demonstracyjna zapisuje zgłoszenia wyłącznie w pamięci Twojej przeglądarki.",
     saved: "Zgłoszenie zapisane lokalnie.",
     reportsCount: "Twoje zgłoszenia"
   },
@@ -43,7 +43,7 @@ export const copy = {
     reportNow: "Report an issue",
     emergency: "Immediate danger? Call 112",
     reportHeading: "New report",
-    reportLead: "Photo, category and location — no account and no database.",
+    reportLead: "Describe the issue, select a category and mark the location. You can also add a photo.",
     category: "Category",
     subcategory: "Issue type",
     desc: "Short description",
@@ -53,11 +53,11 @@ export const copy = {
     submit: "Save report locally",
     status: "Report status",
     recent: "Sample reports",
-    recentLead: "A simple carousel showing common issues and their status.",
+    recentLead: "Explore sample city issues and the stages of handling them.",
     howTitle: "How does it work?",
     faqTitle: "Frequently asked questions",
     privacyNote:
-      "The demo stores reports only in your browser localStorage.",
+      "The demo stores reports only in your browser's local storage.",
     saved: "Report saved locally.",
     reportsCount: "Your reports"
   }
