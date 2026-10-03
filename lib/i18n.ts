@@ -23,7 +23,7 @@ export const copy = {
     submit: "Zapisz zgłoszenie lokalnie",
     status: "Status zgłoszenia",
     recent: "Przykładowe zgłoszenia",
-    recentLead: "Zobacz przykładowe problemy miejskie i etapy ich obsługi.",
+    recentLead: "Zobacz przykładowe problemy miejskie i opisy zgłoszeń.",
     howTitle: "Jak to działa?",
     faqTitle: "Najczęstsze pytania",
     privacyNote:
@@ -53,7 +53,7 @@ export const copy = {
     submit: "Save report locally",
     status: "Report status",
     recent: "Sample reports",
-    recentLead: "Explore sample city issues and the stages of handling them.",
+    recentLead: "Explore sample city issues and report descriptions.",
     howTitle: "How does it work?",
     faqTitle: "Frequently asked questions",
     privacyNote:

@@ -5,12 +5,8 @@ import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
-  Check,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   FileImage,
-  Languages,
   MapPin,
   Phone,
   ShieldCheck,
@@ -35,12 +31,6 @@ const impactLabels: Record<string, Record<Lang, string>> = {
   "Quality of life": { pl: "Jakość życia", en: "Quality of life" },
   "Crisis response": { pl: "Reagowanie kryzysowe", en: "Crisis response" }
 };
-const showcaseEnglish: Record<string, { title: string; status: string }> = {
-  "/reports/pothole.svg": { title: "Damaged road", status: "Under review" },
-  "/reports/streetlight.svg": { title: "Streetlight failure", status: "In progress" },
-  "/reports/flood.svg": { title: "Flooded street", status: "Resolved" }
-};
-
 const smartImpacts = {
   infrastructure: ["Mobility", "Safety"],
   "clean-green": ["Public space", "Quality of life"],
@@ -54,22 +44,28 @@ const smartImpacts = {
 
 const showcase = [
   {
-    image: "/reports/pothole.svg",
+    image: "/images/krk_alert_uszkodzona_jezdnia.jpg",
     title: "Uszkodzona jezdnia",
+    titleEn: "Damaged road",
     place: "Krowodrza",
-    status: "W weryfikacji"
+    description: "Przy krawędzi jezdni powstał głęboki ubytek. Kierowcy omijają go, zjeżdżając w stronę środka drogi. Prośba o sprawdzenie nawierzchni i zabezpieczenie uszkodzenia.",
+    descriptionEn: "A deep pothole has formed near the edge of the road. Drivers move towards the centre to avoid it. Please inspect the surface and secure the damaged area."
   },
   {
-    image: "/reports/streetlight.svg",
+    image: "/images/krk_alert_niedzialajaca_latarnia.jpg",
     title: "Niedziałająca latarnia",
+    titleEn: "Streetlight failure",
     place: "Podgórze",
-    status: "W realizacji"
+    description: "Latarnia przy chodniku nie świeci po zmroku. Odcinek drogi dla pieszych pozostaje ciemny, co utrudnia zauważenie przeszkód. Prośba o sprawdzenie oświetlenia.",
+    descriptionEn: "The streetlight beside the pavement does not turn on after dark. The walkway remains unlit, making obstacles difficult to see. Please inspect the lighting."
   },
   {
-    image: "/reports/flood.svg",
+    image: "/images/krk_alert_zalana_ulica.jpg",
     title: "Zalana ulica",
+    titleEn: "Flooded street",
     place: "Grzegórzki",
-    status: "Rozwiązane"
+    description: "Po intensywnym deszczu woda gromadzi się na jezdni i przy chodniku. Rozlewisko utrudnia przejazd oraz przejście pieszym. Prośba o sprawdzenie drożności odpływów.",
+    descriptionEn: "After heavy rain, water collects on the road and beside the pavement. The flooding obstructs vehicles and pedestrians. Please check the drains for blockages."
   }
 ];
 
@@ -117,7 +113,6 @@ export default function KrkAlertApp() {
   const [analysisRevision, setAnalysisRevision] = useState(0);
   const [analysisDetail, setAnalysisDetail] = useState("");
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "CRITICAL">("MEDIUM");
-  const carouselRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => () => { photoVersion.current++; }, []);
 
@@ -225,9 +220,6 @@ export default function KrkAlertApp() {
     window.setTimeout(() => setSaved(false), 3500);
   };
 
-  const scrollCarousel = (direction: -1 | 1) => {
-    carouselRef.current?.scrollBy({ left: direction * 360, behavior: "smooth" });
-  };
 
   const faq = lang === "pl" ? faqPl : faqEn;
 
@@ -245,7 +237,6 @@ export default function KrkAlertApp() {
           </nav>
           <div className="flex items-center gap-2">
             <button onClick={changeLang} className="icon-button" aria-label={lang === "pl" ? "Zmień język na angielski" : "Switch to Polish"}>
-              <Languages size={18} />
               <span><b className={lang === "pl" ? "text-cyan" : ""}>PL</b> / <b className={lang === "en" ? "text-cyan" : ""}>EN</b></span>
             </button>
             <a href="#report" className="primary-button hidden sm:inline-flex">
@@ -324,13 +315,35 @@ export default function KrkAlertApp() {
             <h2 className="section-title">{t.reportHeading}</h2>
             <p className="section-lead">{t.reportLead}</p>
 
-            <div className="mt-8 space-y-3">
-              {["Przyjęte", "Weryfikacja", "W realizacji", "Rozwiązane"].map((item, idx) => (
-                <div key={item} className="timeline-item">
-                  <span className={idx === 0 ? "timeline-dot active" : "timeline-dot"}>{idx + 1}</span>
-                  <span>{lang === "pl" ? item : ["Received","Verification","In progress","Resolved"][idx]}</span>
-                </div>
-              ))}
+            <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <p className="text-xs font-semibold uppercase tracking-[.16em] text-slate-500">
+                {lang === "pl" ? "Od obserwacji do zgłoszenia" : "From observation to report"}
+              </p>
+              <h3 className="mt-3 text-lg font-bold">
+                {lang === "pl" ? "Ty widzisz problem. My pomagamy go opisać." : "You spot the issue. We help describe it."}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                {lang === "pl"
+                  ? "KRK Alert porządkuje informacje w czytelne zgłoszenie, które może ułatwić kontakt z odpowiednimi służbami."
+                  : "KRK Alert organizes the details into a clear report that can make contacting the right services easier."}
+              </p>
+              <ul className="mt-5 space-y-4">
+                {[
+                  { icon: MapPin, title: lang === "pl" ? "Dokładne miejsce" : "Exact location", text: lang === "pl" ? "Zaznacz punkt na mapie lub użyj GPS." : "Mark a point on the map or use GPS." },
+                  { icon: FileImage, title: lang === "pl" ? "Zdjęcie i konkrety" : "Photo and details", text: lang === "pl" ? "Pokaż problem i napisz, co wymaga uwagi." : "Show the issue and describe what needs attention." },
+                  { icon: Sparkles, title: lang === "pl" ? "Pomoc w kategoryzacji" : "Help with categorization", text: lang === "pl" ? "Możesz skorzystać z analizy zdjęcia lub wybrać kategorię samodzielnie." : "Use photo analysis or choose the category yourself." }
+                ].map(({ icon: Icon, title, text }) => (
+                  <li key={title} className="flex gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700">
+                      <Icon size={18} aria-hidden="true" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold">{title}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-slate-500">{text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div className="privacy-card mt-8">
@@ -459,10 +472,6 @@ export default function KrkAlertApp() {
               <div className="text-xs text-slate-500">
                 {position.lat.toFixed(5)}, {position.lng.toFixed(5)}
               </div>
-              <button className="primary-button" type="submit" disabled={photoLoading}>
-                <Check size={18} />
-                {t.submit}
-              </button>
             </div>
 
             {error && <p role="alert" className="mt-4 text-sm text-red-700">{error === "storage-read" ? (lang === "pl" ? "Nie można odczytać lokalnych danych." : "Cannot read local data.") : error}</p>}
@@ -479,29 +488,20 @@ export default function KrkAlertApp() {
               <h2 className="section-title">{t.recent}</h2>
               <p className="section-lead">{t.recentLead}</p>
             </div>
-            <div className="flex gap-2">
-              <button onClick={() => scrollCarousel(-1)} className="round-arrow" aria-label={lang === "pl" ? "Poprzednie zgłoszenia" : "Previous reports"}>
-                <ChevronLeft />
-              </button>
-              <button onClick={() => scrollCarousel(1)} className="round-arrow" aria-label={lang === "pl" ? "Następne zgłoszenia" : "Next reports"}>
-                <ChevronRight />
-              </button>
-            </div>
           </div>
 
-          <div ref={carouselRef} className="carousel mt-10">
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
             {showcase.map((item) => (
               <article key={item.title} className="case-card">
-                <Image src={item.image} alt="" width={640} height={420} className="case-image" />
+                <Image src={item.image} alt={lang === "pl" ? item.title : item.titleEn} width={640} height={420} sizes="(min-width: 768px) 33vw, 100vw" className="case-image" />
                 <div className="p-6">
                   <div className="mb-3 flex items-center justify-between gap-4">
                     <span className="text-xs font-bold uppercase tracking-[.14em] text-alert">{item.place}</span>
-                    <span className="status-chip">{lang === "pl" ? item.status : showcaseEnglish[item.image].status}</span>
                   </div>
-                  <h3 className="text-xl font-black">{lang === "pl" ? item.title : showcaseEnglish[item.image].title}</h3>
+                  <h3 className="text-xl font-black">{lang === "pl" ? item.title : item.titleEn}</h3>
                   <details className="mt-5 text-sm">
                     <summary className="inline-flex cursor-pointer items-center gap-2 font-bold">{lang === "pl" ? "Szczegóły" : "Details"} <ArrowRight size={16} /></summary>
-                    <p className="mt-3 text-slate-500">{lang === "pl" ? "Przykładowe zgłoszenie demonstracyjne. Status nie odzwierciedla działań urzędu." : "Sample demo report. The status does not represent city services activity."}</p>
+                    <p className="mt-3 leading-relaxed text-slate-500">{lang === "pl" ? item.description : item.descriptionEn}</p>
                   </details>
                 </div>
               </article>
@@ -609,7 +609,7 @@ export default function KrkAlertApp() {
       <div className="mobile-dock md:hidden">
         <a href="#report"><MapPin size={18}/><span>{lang === "pl" ? "Zgłoś" : "Report"}</span></a>
         <a href="tel:112"><Phone size={18}/><span>112</span></a>
-        <button onClick={changeLang} aria-label={lang === "pl" ? "Zmień język na angielski" : "Switch to Polish"}><Languages size={18}/><span><b className={lang === "pl" ? "text-cyan" : ""}>PL</b> / <b className={lang === "en" ? "text-cyan" : ""}>EN</b></span></button>
+        <button onClick={changeLang} aria-label={lang === "pl" ? "Zmień język na angielski" : "Switch to Polish"}><span><b className={lang === "pl" ? "text-cyan" : ""}>PL</b> / <b className={lang === "en" ? "text-cyan" : ""}>EN</b></span></button>
       </div>
     </main>
   );
