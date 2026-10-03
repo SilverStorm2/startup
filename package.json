@@ -6,14 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test:photo": "node scripts/test-photo-analysis.mjs"
   },
   "dependencies": {
     "lucide-react": "0.468.0",
     "maplibre-gl": "5.0.1",
     "next": "15.5.2",
     "react": "19.1.1",
-    "react-dom": "19.1.1"
+    "react-dom": "19.1.1",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@types/node": "20.17.30",

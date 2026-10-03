@@ -7,3 +7,5 @@ out/
 .env.*.local
 .DS_Store
 npm-debug.log*
+.next-server-check/
+.next-hf-check/

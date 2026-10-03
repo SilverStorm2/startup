@@ -33,9 +33,39 @@ npm run build
 ```
 
 Zgłoszenia zapisują opis, współrzędne, datę, status, priorytet, wpływ na miasto
-i opcjonalne zdjęcie JPG/PNG/WebP (do 2 MB). Zdjęcia pozostają w localStorage.
+i opcjonalne zdjęcie JPG/PNG/WebP (plik wejściowy do 20 MB). Zdjęcia są zmniejszane
+do maksymalnie 768 px i zapisywane jako JPEG z jakością 80%. Pozostają w localStorage.
 W razie braku miejsca formularz zachowuje dane i wyświetla błąd zapisu.
 Priorytet jest sugestią opartą na prostych regułach tekstowych.
+
+## Analiza zdjęcia przez Hugging Face
+
+Endpoint Next.js POST /api/analyze-photo wysyła rzeczywisty obraz do publicznego
+routera https://router.huggingface.co/v1/chat/completions. Model vision:
+google/gemma-3-27b-it:deepinfra (obsługuje wejście image oraz structured output).
+Nie używamy lokalnego CLIP, reguł do rozpoznawania zdjęć ani dedykowanego endpointu.
+
+Umieść HF_TOKEN w .env.local w katalogu głównym projektu. Token musi mieć
+uprawnienie „Make calls to Inference Providers”. Nigdy nie używaj NEXT_PUBLIC_.
+Opcjonalnie HF_VISION_MODEL pozwala wybrać inny kompatybilny model vision z dostawcą.
+Po zmianie środowiska uruchom ponownie npm run dev.
+
+Przeglądarka zmniejsza zdjęcie do JPEG o maksymalnym wymiarze 768 px.
+Backend sprawdza format i limit 2 MB, ponownie zmniejsza obraz i usuwa metadane.
+Model otrzymuje obraz i katalog istniejących kategorii/rodzajów problemów,
+bez opisu użytkownika, lokalizacji i zgłoszeń. Wynik JSON jest walidowany względem katalogu.
+Niejasne zdjęcie może nie dać propozycji. Pola formularza zmieniają się dopiero
+po kliknięciu „Zastosuj propozycję”. Ręczny wybór działa także po błędzie HF.
+
+Publiczne Inference Providers korzysta z dostępnych kredytów konta HF;
+nie gwarantuje nieograniczonej darmowej analizy. Nie tworzymy płatnego dedykowanego
+endpointu ani nie aktywujemy płatności. Brak kredytów, tokenu, uprawnień, limit,
+timeout i niepoprawna odpowiedź powodują jawny błąd, bez fikcyjnej analizy AI.
+Zdjęcie trafia do HF i dostawcy modelu; aplikacja nie zapisuje go na serwerze.
+
+Testy: npm run test:photo. Test rzeczywistego API z publiczną grafiką projektu:
+node --env-file=.env.local scripts/test-photo-analysis.mjs --live.
+Hosting musi obsługiwać endpoint Next.js Node.js oraz wychodzące HTTPS.
 
 ## Funkcje
 

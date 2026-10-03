@@ -20,6 +20,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import ReportMap from "./ReportMap";
 import { categories, CategoryKey, isStoredReport, StoredReport } from "@/lib/report-types";
 import { copy, Lang } from "@/lib/i18n";
+import { categoryPriorities, optimizePhoto, PhotoSuggestion } from "@/lib/photo-analysis";
 
 const priorityLabels = {
   LOW: { pl: "Niski", en: "Low" },
@@ -107,8 +108,42 @@ export default function KrkAlertApp() {
   const [error, setError] = useState("");
   const [photoLoading, setPhotoLoading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const analysisId = useRef(0);
+
+  const photoVersion = useRef(0);
+  const [suggestion, setSuggestion] = useState<PhotoSuggestion | null>(null);
+  const [analysisStatus, setAnalysisStatus] = useState<"idle" | "analyzing" | "complete" | "error">("idle");
+  const [analysisRevision, setAnalysisRevision] = useState(0);
+  const [analysisDetail, setAnalysisDetail] = useState("");
   const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "CRITICAL">("MEDIUM");
   const carouselRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => () => { photoVersion.current++; }, []);
+
+  useEffect(() => {
+    const id = ++analysisId.current;
+    setSuggestion(null);
+    setAnalysisDetail("");
+    if (!photoUrl) { setAnalysisStatus("idle"); return; }
+    const controller = new AbortController();
+    setAnalysisStatus("analyzing");
+    const timeout = setTimeout(() => controller.abort(), 120000);
+    (async () => {
+      try {
+        const photo = await (await fetch(photoUrl)).blob();
+        const response = await fetch("/api/analyze-photo", {method:"POST",headers:{"Content-Type":photo.type},body:photo,signal:controller.signal});
+        const result = await response.json();
+        if (id !== analysisId.current) return;
+        if (!response.ok) throw new Error(result.code || "ANALYSIS_FAILED");
+        setSuggestion(result.suggestion); setAnalysisStatus("complete");
+      } catch (error) {
+        if (id !== analysisId.current) return;
+        setAnalysisDetail(controller.signal.aborted ? "TIMEOUT" : error instanceof Error ? error.message : "ANALYSIS_FAILED"); setAnalysisStatus("error");
+      } finally { clearTimeout(timeout); }
+    })();
+    return () => { ++analysisId.current; clearTimeout(timeout); controller.abort(); };
+  }, [photoUrl, analysisRevision]);
 
   useEffect(() => {
     const browserLang = navigator.language.toLowerCase().startsWith("en") ? "en" : "pl";
@@ -142,9 +177,9 @@ export default function KrkAlertApp() {
     ) {
       setPriority("MEDIUM");
     } else {
-      setPriority("LOW");
+      setPriority(categoryPriorities[selectedCategory.key]);
     }
-  }, [selectedIssue, description]);
+  }, [selectedIssue, selectedCategory.key, description]);
 
   const changeLang = () => {
     const next = lang === "pl" ? "en" : "pl";
@@ -317,7 +352,7 @@ export default function KrkAlertApp() {
 
               <label className="field">
                 <span>{t.subcategory}</span>
-                <select value={subcategoryIndex} onChange={(e) => setSubcategoryIndex(Number(e.target.value))}>
+                <select value={subcategoryIndex} onChange={(e) => { setSubcategoryIndex(Number(e.target.value)); }}>
                   {selectedCategory.items.map((item, index) => (
                     <option key={item.pl} value={index}>{item[lang]}</option>
                   ))}
@@ -327,7 +362,7 @@ export default function KrkAlertApp() {
 
             <div className="smart-panel mt-5">
               <div>
-                <span className="smart-label">{lang === "pl" ? "Klasyfikacja regułowa" : "Rule-based classification"}</span>
+                <span className="smart-label">{lang === "pl" ? "Wybrane zgłoszenie" : "Selected report"}</span>
                 <strong>{selectedCategory[lang]} → {subcategory}</strong>
               </div>
               <div>
@@ -364,20 +399,26 @@ export default function KrkAlertApp() {
                   className="sr-only"
                   type="file"
                   accept="image/jpeg,image/png,image/webp"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 2 * 1024 * 1024) {
-                      setError(lang === "pl" ? "Wybierz JPG, PNG lub WebP do 2 MB." : "Choose JPG, PNG or WebP up to 2 MB.");
+                    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 20 * 1024 * 1024) {
+                      setError(lang === "pl" ? "Wybierz JPG, PNG lub WebP do 20 MB." : "Choose JPG, PNG or WebP up to 20 MB.");
                       e.target.value = "";
                       return;
                     }
                     setPhotoLoading(true);
                     setError("");
-                    const reader = new FileReader();
-                    reader.onload = () => { setPhotoUrl(reader.result as string); setPhotoLoading(false); };
-                    reader.onerror = () => { setError(lang === "pl" ? "Nie można odczytać zdjęcia." : "Cannot read photo."); setPhotoLoading(false); };
-                    reader.readAsDataURL(file);
+                    const version = ++photoVersion.current;
+                    ++analysisId.current;
+                    setSuggestion(null);
+                    setAnalysisStatus("idle");
+                    try {
+                      const optimized = await optimizePhoto(file);
+                      if (version === photoVersion.current) { setPhotoUrl(optimized); setAnalysisRevision(value => value + 1); }
+                    } catch {
+                      if (version === photoVersion.current) setError(lang === "pl" ? "Nie można odczytać zdjęcia. Spróbuj innego pliku." : "Cannot read photo. Try another file.");
+                    } finally { if (version === photoVersion.current) setPhotoLoading(false); }
                   }}
                 />
                 {photoUrl ? (
@@ -386,11 +427,27 @@ export default function KrkAlertApp() {
                   <>
                     <FileImage size={28} />
                     <span>{lang === "pl" ? "Kliknij, aby dodać zdjęcie" : "Click to add a photo"}</span>
-                    <small>JPG / PNG / WebP · {lang === "pl" ? "do 2 MB" : "up to 2 MB"}</small>
+                    <small>JPG / PNG / WebP · {lang === "pl" ? "do 20 MB" : "up to 20 MB"}</small>
                   </>
                 )}
               </label>
-              {photoUrl && <button type="button" className="mt-2 text-sm underline" onClick={() => { setPhotoUrl(null); if (photoInputRef.current) photoInputRef.current.value = ""; }}>{lang === "pl" ? "Usuń zdjęcie" : "Remove photo"}</button>}
+              {photoUrl && <button type="button" className="mt-2 text-sm underline" onClick={() => { ++photoVersion.current; setPhotoLoading(false); setPhotoUrl(null); if (photoInputRef.current) photoInputRef.current.value = ""; }}>{lang === "pl" ? "Usuń zdjęcie" : "Remove photo"}</button>}
+              {(photoLoading || analysisStatus !== "idle") && (
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm" role="status" aria-live="polite">
+                  <p className="font-bold">{lang === "pl" ? "Sugerowana kategoria" : "Suggested category"}</p>
+                  <p className="mt-2 text-slate-600">
+                    {photoLoading ? (lang === "pl" ? "Optymalizacja zdjęcia…" : "Optimizing photo…") :
+                    analysisStatus === "analyzing" ? (lang === "pl" ? "Hugging Face analizuje zdjęcie…" : "Hugging Face is analyzing the photo…") :
+                    analysisStatus === "error" ? (["TIMEOUT", "HF_TIMEOUT"].includes(analysisDetail) ? (lang === "pl" ? "Hugging Face nie odpowiedział na czas. Ponów próbę lub wybierz kategorię ręcznie." : "Hugging Face timed out. Retry or choose a category manually.") : lang === "pl" ? (analysisDetail === "HF_CREDITS_REQUIRED" ? "Brak kredytów Hugging Face. Wybierz kategorię ręcznie." : analysisDetail === "HF_AUTH_ERROR" || analysisDetail === "HF_TOKEN_MISSING" ? "Brak dostępu do Hugging Face. Sprawdź token i uprawnienie Inference Providers na serwerze." : analysisDetail === "HF_RATE_LIMIT" ? "Limit zapytań Hugging Face. Spróbuj później lub wybierz kategorię ręcznie." : "Analiza Hugging Face niedostępna. Wybierz kategorię ręcznie lub ponów próbę.") : (analysisDetail === "HF_CREDITS_REQUIRED" ? "Hugging Face credits exhausted. Choose a category manually." : analysisDetail === "HF_AUTH_ERROR" || analysisDetail === "HF_TOKEN_MISSING" ? "Hugging Face access unavailable. Check the server token and Inference Providers permission." : analysisDetail === "HF_RATE_LIMIT" ? "Hugging Face rate limit reached. Retry later or choose a category manually." : "Hugging Face analysis unavailable. Choose a category manually or retry.")) :
+                    suggestion ? `${categories.find(item => item.key === suggestion.category)?.[lang]} → ${categories.find(item => item.key === suggestion.category)?.items[suggestion.subcategoryIndex]?.[lang]}` :
+                    (lang === "pl" ? "Brak jednoznacznej propozycji. Wybierz kategorię ręcznie." : "No clear suggestion. Choose a category manually.")}
+                  </p>
+                  <p className="mt-2 text-xs text-slate-500">{lang === "pl" ? "Zmniejszone zdjęcie jest wysyłane przez serwer do Hugging Face i dostawcy modelu. Formularz zmieni się dopiero po kliknięciu „Zastosuj propozycję”." : "The resized photo is sent through the server to Hugging Face and its model provider. The form changes only after you click “Apply suggestion”."}</p>
+                  {suggestion && <button type="button" className="primary-button mt-3" onClick={() => {setCategory(suggestion.category);setSubcategoryIndex(suggestion.subcategoryIndex);setSuggestion(null);setAnalysisStatus("idle");}}>{lang === "pl" ? "Zastosuj propozycję" : "Apply suggestion"}</button>}
+                  {analysisStatus === "error" && <button type="button" className="mt-3 underline" onClick={() => setAnalysisRevision(value => value + 1)}>{lang === "pl" ? "Spróbuj ponownie" : "Retry analysis"}</button>}
+                  {analysisStatus === "error" && analysisDetail && <details className="mt-2 text-xs text-slate-500"><summary className="cursor-pointer">{lang === "pl" ? "Szczegóły błędu" : "Error details"}</summary><p className="mt-2 break-words">{analysisDetail}</p></details>}
+                </div>
+              )}
             </div>
 
             <div className="mt-6">
