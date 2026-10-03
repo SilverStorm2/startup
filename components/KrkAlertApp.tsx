@@ -366,10 +366,6 @@ export default function KrkAlertApp() {
                 <span className="smart-label">{lang === "pl" ? "Wybrane zgłoszenie" : "Selected report"}</span>
                 <strong>{selectedCategory[lang]} → {subcategory}</strong>
               </div>
-              <div>
-                <span className="smart-label">{lang === "pl" ? "Priorytet" : "Priority"}</span>
-                <strong className={`priority priority-${priority.toLowerCase()}`}>{priorityLabels[priority][lang]}</strong>
-              </div>
             </div>
 
             <label className="field mt-5">
