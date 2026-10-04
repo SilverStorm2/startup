@@ -2,6 +2,10 @@
 import { readFile } from 'node:fs/promises';
 import ts from 'typescript';
 import sharp from 'sharp';
+import nextEnv from '@next/env';
+import { fileURLToPath } from 'node:url';
+// Load the same project environment as Next.js, regardless of the shell's cwd.
+nextEnv.loadEnvConfig(fileURLToPath(new URL('..', import.meta.url)));
 const transpile = s => ts.transpileModule(s,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
 const url = s => `data:text/javascript;base64,${Buffer.from(s).toString('base64')}`;
 const typesUrl=url(transpile(await readFile(new URL('../lib/report-types.ts',import.meta.url),'utf8')));
